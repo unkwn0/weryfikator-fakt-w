@@ -21,6 +21,9 @@ export function generateMarkdown(v: Verification): string {
     if (step.notes) {
       lines.push(`  ${step.notes}`);
     }
+    if (step.sourceUrl) {
+      lines.push(`  [Źródło](${step.sourceUrl})`);
+    }
   });
 
   lines.push(``, `## Werdykt`, ``, `**${v.verdict}**`);
@@ -58,6 +61,7 @@ export async function exportPDF(v: Verification): Promise<void> {
       <div style="margin:8px 0;padding:8px;border:1px solid #eee;border-radius:2px;">
         <span style="font-size:14px;">${s.checked ? '☑' : '☐'} <strong>${s.label}</strong></span>
         ${s.notes ? `<p style="margin:4px 0 0 20px;color:#555;">${s.notes}</p>` : ''}
+        ${s.sourceUrl ? `<p style="margin:2px 0 0 20px;"><a href="${s.sourceUrl}" style="color:#2563eb;font-size:12px;">${s.sourceUrl}</a></p>` : ''}
       </div>
     `).join('')}
     <hr style="border:none;border-top:1px solid #ddd;margin:12px 0;" />

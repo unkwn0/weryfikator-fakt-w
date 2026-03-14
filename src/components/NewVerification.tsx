@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Verification, createEmptyVerification, CATEGORIES, URGENCIES, VERDICTS, getVerdictBadgeClass, getConfidenceLabel, Category, Urgency, Verdict } from '@/types/verification';
 import { saveVerification } from '@/utils/storage';
 import { exportPDF, copyMarkdown } from '@/utils/export';
 import { toast } from '@/hooks/use-toast';
+
+const AUTOSAVE_KEY = 'fact-checker-autosave';
 
 interface Props {
   editingVerification?: Verification | null;
@@ -12,13 +14,54 @@ interface Props {
 export default function NewVerification({ editingVerification, onSaved }: Props) {
   const [data, setData] = useState<Verification>(editingVerification ?? createEmptyVerification());
   const [claimError, setClaimError] = useState(false);
+  const [showDraftBanner, setShowDraftBanner] = useState(false);
+  const draftRef = useRef<Verification | null>(null);
+
+  // Check for autosave on mount (only for new verifications)
+  useEffect(() => {
+    if (editingVerification) return;
+    try {
+      const saved = localStorage.getItem(AUTOSAVE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved) as Verification;
+        if (parsed.claim?.trim()) {
+          draftRef.current = parsed;
+          setShowDraftBanner(true);
+        }
+      }
+    } catch { /* ignore */ }
+  }, [editingVerification]);
+
+  // Autosave every 30s
+  useEffect(() => {
+    if (editingVerification) return;
+    const interval = setInterval(() => {
+      if (data.claim.trim()) {
+        localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(data));
+      }
+    }, 30000);
+    return () => clearInterval(interval);
+  }, [data, editingVerification]);
+
+  const restoreDraft = () => {
+    if (draftRef.current) {
+      setData(draftRef.current);
+    }
+    setShowDraftBanner(false);
+  };
+
+  const discardDraft = () => {
+    localStorage.removeItem(AUTOSAVE_KEY);
+    draftRef.current = null;
+    setShowDraftBanner(false);
+  };
 
   const update = <K extends keyof Verification>(key: K, val: Verification[K]) => {
     setData(prev => ({ ...prev, [key]: val }));
     if (key === 'claim') setClaimError(false);
   };
 
-  const updateStep = (idx: number, field: 'checked' | 'notes', val: boolean | string) => {
+  const updateStep = (idx: number, field: 'checked' | 'notes' | 'sourceUrl', val: boolean | string) => {
     setData(prev => ({
       ...prev,
       steps: prev.steps.map((s, i) => i === idx ? { ...s, [field]: val } : s),
@@ -31,6 +74,7 @@ export default function NewVerification({ editingVerification, onSaved }: Props)
       return;
     }
     saveVerification(data);
+    localStorage.removeItem(AUTOSAVE_KEY);
     toast({ title: 'Zapisano weryfikację', duration: 3000 });
     onSaved();
   };
@@ -55,6 +99,27 @@ export default function NewVerification({ editingVerification, onSaved }: Props)
 
   return (
     <div className="max-w-[800px] mx-auto px-4 py-6 space-y-6">
+      {/* Draft recovery banner */}
+      {showDraftBanner && (
+        <div className="flex items-center justify-between gap-3 bg-card border border-border rounded-sm px-4 py-3">
+          <span className="text-sm text-muted-foreground">Znaleziono niezapisany szkic. Przywrócić?</span>
+          <div className="flex gap-2">
+            <button
+              onClick={restoreDraft}
+              className="text-xs bg-primary text-primary-foreground px-3 py-1.5 rounded-sm font-medium"
+            >
+              Przywróć
+            </button>
+            <button
+              onClick={discardDraft}
+              className="text-xs bg-secondary text-secondary-foreground px-3 py-1.5 rounded-sm border border-border"
+            >
+              Odrzuć
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Claim */}
       <div>
         <label className="block text-sm font-medium text-muted-foreground mb-1.5">Weryfikowane twierdzenie</label>
@@ -121,6 +186,14 @@ export default function NewVerification({ editingVerification, onSaved }: Props)
                 onChange={e => updateStep(i, 'notes', e.target.value)}
                 placeholder="Notatki..."
               />
+              <input
+                type="text"
+                className="w-full mt-1.5 bg-background border border-border rounded-sm p-2 font-mono text-xs text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                value={step.sourceUrl}
+                onChange={e => updateStep(i, 'sourceUrl', e.target.value)}
+                placeholder="https://..."
+              />
+              <span className="text-[10px] text-muted-foreground mt-0.5 block">URL źródła</span>
             </div>
           ))}
         </div>

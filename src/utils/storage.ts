@@ -26,3 +26,7 @@ export function deleteVerification(id: string): void {
   const all = loadVerifications().filter(x => x.id !== id);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
 }
+
+export function saveAllVerifications(verifications: Verification[]): void {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(verifications));
+}

@@ -152,6 +152,14 @@ export default function NewVerification({ editingVerification, onSaved }: Props)
             onChange={e => update('confidence', Number(e.target.value))}
             className="w-full accent-primary mt-1"
           />
+          <div className="w-full h-2 bg-muted rounded-sm overflow-hidden mt-2">
+            <div
+              className={`h-full rounded-sm transition-all ${
+                data.confidence <= 33 ? 'bg-destructive' : data.confidence <= 66 ? 'bg-status-partial' : 'bg-primary'
+              }`}
+              style={{ width: `${data.confidence}%` }}
+            />
+          </div>
         </div>
       </div>
 

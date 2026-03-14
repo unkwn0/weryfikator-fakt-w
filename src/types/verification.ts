@@ -43,7 +43,7 @@ export function createEmptyVerification(): Verification {
     claim: '',
     category: 'Polityka',
     urgency: 'Średni',
-    steps: DEFAULT_STEPS.map(label => ({ label, checked: false, notes: '' })),
+    steps: DEFAULT_STEPS.map(label => ({ label, checked: false, notes: '', sourceUrl: '' })),
     verdict: 'W toku',
     confidence: 50,
     createdAt: now,

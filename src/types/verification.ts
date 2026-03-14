@@ -6,6 +6,7 @@ export interface VerificationStep {
   label: string;
   checked: boolean;
   notes: string;
+  sourceUrl: string;
 }
 
 export interface Verification {

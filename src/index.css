@@ -84,28 +84,33 @@
   }
 
   .badge-true {
-    background-color: hsl(var(--status-true));
-    color: hsl(var(--background));
+    background-color: hsl(var(--status-true) / 0.15);
+    color: hsl(var(--status-true));
+    ring: 1px solid hsl(var(--status-true) / 0.3);
   }
 
   .badge-false {
-    background-color: hsl(var(--status-false));
-    color: hsl(var(--foreground));
+    background-color: hsl(var(--status-false) / 0.15);
+    color: hsl(var(--status-false));
+    ring: 1px solid hsl(var(--status-false) / 0.3);
   }
 
   .badge-partial {
-    background-color: hsl(var(--status-partial));
-    color: hsl(var(--background));
+    background-color: hsl(var(--status-partial) / 0.15);
+    color: hsl(var(--status-partial));
+    ring: 1px solid hsl(var(--status-partial) / 0.3);
   }
 
   .badge-unverifiable {
-    background-color: hsl(var(--status-unverifiable));
-    color: hsl(var(--foreground));
+    background-color: hsl(var(--status-unverifiable) / 0.15);
+    color: hsl(var(--status-unverifiable));
+    ring: 1px solid hsl(var(--status-unverifiable) / 0.3);
   }
 
   .badge-progress {
-    background-color: hsl(var(--status-progress));
-    color: hsl(var(--foreground));
+    background-color: hsl(var(--status-progress) / 0.15);
+    color: hsl(var(--status-progress));
+    ring: 1px solid hsl(var(--status-progress) / 0.3);
   }
 
   .step-box {
